@@ -1,0 +1,21 @@
+{
+  "name": "isolated-runtime-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "isolated-runtime": "^1.0.0",
+    "vm2-babel-compiler": "^1.0.0"
+  },
+  "devDependencies": {
+    "axios": "^0.18.0",
+    "isolated-runtime-test-commons": "^1.0.0",
+    "wix-http-functions": "^1.0.437"
+  }
+}
