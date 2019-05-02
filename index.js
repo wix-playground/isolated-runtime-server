@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const { IsolatedRuntime } = require("isolated-runtime");
 const npm = require("./lib/npm-modules");
+const edm = require("./lib/edm-modules");
 
 const compilerModulePath = require.resolve("vm2-babel-compiler");
 
@@ -24,6 +25,7 @@ module.exports = ({ untrustedCodePath, edmPath, npmPath }) => {
       list: npmModules,
       versionMap: npmVersionMap
     } = await npm.listModules(npmPath);
+    const edmModules = await edm.listModules(edmPath);
 
     req.on("data", chunk => {
       body += chunk;
@@ -49,7 +51,7 @@ module.exports = ({ untrustedCodePath, edmPath, npmPath }) => {
           ]
         },
         external: {
-          modules: ["backend/*", "wix-http-functions", ...npmModules],
+          modules: ["backend/*", ...edmModules, ...npmModules],
           transitive: true
         },
         whitelistedPaths: [edmPath, npmPath],
@@ -59,7 +61,9 @@ module.exports = ({ untrustedCodePath, edmPath, npmPath }) => {
           root: userRoot,
           npmModules,
           dependencies,
-          npmVersionMap
+          npmVersionMap,
+          edmPath,
+          edmModules
         }
       });
 

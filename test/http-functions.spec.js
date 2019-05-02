@@ -1,4 +1,3 @@
-const path = require("path");
 const { Context, randoms } = require("isolated-runtime-test-commons");
 const axios = require("axios");
 const listen = require("..");
@@ -13,9 +12,7 @@ describe("Http Functions", () => {
     root = randoms.folder();
     server = listen({
       untrustedCodePath: __dirname,
-      edmPath: path.dirname(
-        path.dirname(require.resolve("wix-http-functions"))
-      ),
+      edmPath: global.edmPath,
       npmPath: global.npmPath
     });
     client = axios.create({ baseURL: `http://localhost:${server.port}` });
