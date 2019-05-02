@@ -28,6 +28,7 @@
     "eslint-plugin-prettier": "^3.0.1",
     "isolated-runtime-test-commons": "^1.0.0",
     "jest": "^24.7.1",
+    "jest-environment-node": "^24.7.1",
     "jest-extended": "^0.11.1",
     "prettier": "^1.16.4",
     "wix-http-functions": "^1.0.437"

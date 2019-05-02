@@ -2,24 +2,21 @@ const path = require("path");
 const { Context, randoms } = require("isolated-runtime-test-commons");
 const axios = require("axios");
 const listen = require("..");
-const NpmContext = require("./context/NpmContext");
 
 describe("Http Functions", () => {
   let context;
   let server;
   let client;
   let root;
-  let npmModulesContext;
 
   beforeEach(() => {
     root = randoms.folder();
-    npmModulesContext = new NpmContext({ basePath: __dirname });
     server = listen({
       untrustedCodePath: __dirname,
       edmPath: path.dirname(
         path.dirname(require.resolve("wix-http-functions"))
       ),
-      npmPath: npmModulesContext.basePath
+      npmPath: global.npmPath
     });
     client = axios.create({ baseURL: `http://localhost:${server.port}` });
   });
@@ -68,19 +65,6 @@ describe("Http Functions", () => {
 
   describe("With http-functions using npm modules", () => {
     beforeEach(async () => {
-      await npmModulesContext
-        .withModule({
-          name: "sample-module",
-          version: "0.0.1",
-          files: [
-            {
-              file: "index.js",
-              content: "module.exports = 'my-todo'"
-            }
-          ]
-        })
-        .build();
-
       context = await new Context({
         basePath: __dirname,
         root
@@ -116,9 +100,7 @@ describe("Http Functions", () => {
         .build();
     });
 
-    afterEach(() =>
-      Promise.all([context.destroy(), npmModulesContext.destroy()])
-    );
+    afterEach(() => context.destroy());
 
     test("runs sandboxed code using npm modules", async () => {
       const response = await client.get(`${root}/_functions/todos_with_npm/`);
