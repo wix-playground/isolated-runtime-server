@@ -2,24 +2,24 @@ const path = require("path");
 const { Context, randoms } = require("isolated-runtime-test-commons");
 const axios = require("axios");
 const listen = require("..");
+const NpmContext = require("./context/NpmContext");
 
-describe("Isolated Runtime Server", () => {
+describe("Http Functions", () => {
   let context;
   let server;
   let client;
   let root;
   let npmModulesContext;
-  let npmPath;
 
   beforeEach(() => {
     root = randoms.folder();
-    npmPath = path.join(__dirname, randoms.folder());
+    npmModulesContext = new NpmContext({ basePath: __dirname });
     server = listen({
       untrustedCodePath: __dirname,
       edmPath: path.dirname(
         path.dirname(require.resolve("wix-http-functions"))
       ),
-      npmPath
+      npmPath: npmModulesContext.basePath
     });
     client = axios.create({ baseURL: `http://localhost:${server.port}` });
   });
@@ -68,20 +68,17 @@ describe("Isolated Runtime Server", () => {
 
   describe("With http-functions using npm modules", () => {
     beforeEach(async () => {
-      npmModulesContext = await new Context({
-        basePath: npmPath,
-        root: "" // todo should have nested root with current
-      })
-        .withFile(
-          "map.json",
-          JSON.stringify({
-            "sample-module@0.0.1": "WC_BEGIN/sample-module/0.0.1/WC_END"
-          })
-        )
-        .withFile(
-          "WC_BEGIN/sample-module/0.0.1/WC_END/sample-module/index.js",
-          "module.exports = 'my-todo'"
-        )
+      await npmModulesContext
+        .withModule({
+          name: "sample-module",
+          version: "0.0.1",
+          files: [
+            {
+              file: "index.js",
+              content: "module.exports = 'my-todo'"
+            }
+          ]
+        })
         .build();
 
       context = await new Context({
